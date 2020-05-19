@@ -58,7 +58,50 @@ exports.login = async (req, res) => {
 
 }
 
-exports.gLogin = (req, res) => {
-    const token = req.params.token;
-
+exports.gLogin = async(req, res) => {
+    const tokena = req.params.token;
+    var credential = firebase.auth.GoogleAuthProvider.credential(tokena);
+    let user_id;
+    let token = "";
+    let data = {};
+    firebase.auth().signInWithCredential(credential)
+      .then((d) => {
+        user_id = d.user.uid;
+        data = {
+          name: randomId(8, "A0"),
+          displayName: d.user.displayName,
+          email: d.user.email,
+          createdAt: new Date().toISOString(),
+          user_id: d.user.uid,
+          isAnonymous: d.user.isAnonymous,
+          userImage: d.user.photoURL,
+          // lastLogin: d.user.lastLoginAt,
+        };
+        // console.log(d.user.displayName);
+        return d.user.getIdToken();
+        
+      })
+      .then((tokens) => {
+        token = tokens;
+        admin.firestore().collection("users").where("user_id", "==", user_id).limit(1).get()
+          .then((doc) => {
+            if (doc.docs[0]) {
+              return 0;
+            } else {
+              return admin.firestore().doc(`/users/${user_id}`).set(data);
+            }
+          });
+      })
+      .then(() => {
+        const device_key = randomId(24, "aA0");
+        res.cookie('token', token, cookieConfig);
+        return res
+          .status(200)
+          .json({ token, user_id, device_key, success: true });
+      })
+  
+      .catch((error) => {
+        console.log(error);
+        return res.status(403).json({ error: true, message: error.message });
+      });
 }

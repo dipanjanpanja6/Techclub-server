@@ -11,6 +11,6 @@ const firebaseConfig = {
     measurementId: "G-KK083XRQ6P"
   };
   firebase.initializeApp(firebaseConfig)
-  // admin.initializeApp(firebaseConfig);
+  admin.initializeApp();
 
   module.exports={admin}
