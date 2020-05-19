@@ -11,6 +11,13 @@ const firebaseConfig = {
     measurementId: "G-KK083XRQ6P"
   };
   firebase.initializeApp(firebaseConfig)
-  admin.initializeApp();
+
+var serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://techclubgcect.firebaseio.com"
+});
+
 
   module.exports={admin}
