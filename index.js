@@ -8,7 +8,7 @@ const bodyParser=require('body-parser')
 const PORT = process.env.PORT||7000;
 
 var app = express()
-app.use(cross({origin:"http://localhost:3000" ,credentials: true}));
+app.use(cross({origin:"https://techclub.web.app" ,credentials: true}));
 // app.use(cross())
 app.use(express.json());
 // app.use(bodyParser())
