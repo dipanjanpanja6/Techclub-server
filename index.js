@@ -20,6 +20,9 @@ app.use(cookieParser("o vai maro mujhe maro"));
 
 
 const {login,checkLogin,signUp,customLogin,activate} =require('./auth')
+const {feedback} =require('./inq')
+
+app.post('/feedback',feedback)
 
 app.post('/signUp',signUp)
 app.post('/login',login)
