@@ -40,11 +40,14 @@ app.post('/logout', (req, res) => {
     return res.json({ success: true })
 })
 //////////////////////////////////////////////////////
-const {userProfile,projectSubmit,projectGet} =require('./user')
+const {userList,events,userProfile,projectSubmit,projectGet,addEvent} =require('./user')
 
 app.get('/whoiam',checkUser,userProfile)
 app.post('/projectsubmit',checkUser,projectSubmit)
 app.get('/projectget',checkUser,projectGet)
+app.get('/userlist',checkUser,userList)
+app.get('/events',checkUser,events)
+app.post('/addevent',checkUser,addEvent)
 
 
 

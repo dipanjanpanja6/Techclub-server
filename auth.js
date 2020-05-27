@@ -226,7 +226,10 @@ exports.checkUser = (req, res, next) => {
   admin.auth().verifySessionCookie(
     sessionCookie, true /** checkRevoked */)
     .then((decodedClaims) => {
+      // console.log(decodedClaims);
+      
       req.uid=(decodedClaims.uid)
+      req.email=(decodedClaims.email)
       
       next()
     })
