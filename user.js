@@ -2,6 +2,7 @@ const { admin } = require('./config/admin')
 const firebase = require('firebase')
 const randomId = require('random-id')
 
+
 exports.userProfile = (req, res) => {
     const uid = req.uid
     admin.auth().getUser(uid).then((userRecord) => {
@@ -26,21 +27,27 @@ exports.userProfile = (req, res) => {
 }
 exports.projectSubmit = (req, res) => {
     const uid = req.uid
+    const email = req.email
     const data = {
         id: randomId(10, 'Aa0'),
+        uid: uid,
+        email:email,
         title: req.body.title,
         gitLink: req.body.gitLink,
         desc: req.body.desc,
         imageUri: req.body.imageUri,
         liveLink: req.body.liveLink,
-        createdAt: new Date().toLocaleString()
+        createdAt: new Date().toLocaleString(),
+        star: 0,
+        member:[uid],
+        tag:['Test']
     }
     console.log(data);
 
-    var object = {}
-    object['projectKey ' + randomId(5, 'Aa0')] = data
+    // var object = {}
+    // object['projectKey ' + randomId(5, 'Aa0')] = data
 
-    admin.firestore().collection('project').doc(uid).set(object, { merge: true }).then(d => {
+    admin.firestore().collection('project').doc().set(data).then(d => {
 
         return res.json({ success: true })
     })
@@ -57,16 +64,21 @@ exports.projectSubmit = (req, res) => {
 
         })
 }
+
+
 exports.projectGet = (req, res) => {
     const uid = req.uid
 
-    admin.firestore().collection('project').doc(uid).get().then(d => {
-        if (!d.exists) {
-            return res.json({ success: true, data: { title: 'No project added' } })
-        } else {
-            return res.json({ success: true, data: d.data() })
-        }
-    })
+    admin.firestore().collection("project")
+        .where("uid", "==", uid).get().then(async d => {
+            let data=[]
+           await d.forEach(doc=>{
+                data.push(doc.data())
+            })
+          
+                return res.json({ success: true, data: data })
+            
+        })
         .catch((error) => {
             console.log(error);
             return res.json({ error: true, message: error })
@@ -76,6 +88,9 @@ exports.projectGet = (req, res) => {
             return res.json({ error: true, message: error })
         })
 }
+
+
+
 exports.userList = (req, res) => {
     const uid = req.uid
     admin.auth().getUser(uid).then((userRecord) => {
@@ -116,8 +131,8 @@ exports.userList = (req, res) => {
 exports.addEvent = (req, res) => {
     const uid = req.uid
     const email = req.email
-    let member = {}
-    member[uid] = email
+    // let member = {}
+    // member[uid] = email
     const data = {
         id: randomId(10, 'Aa0'),
         title: req.body.title,
@@ -127,10 +142,11 @@ exports.addEvent = (req, res) => {
         place: req.body.place,
         topic: req.body.topic,
         createdAt: new Date().toLocaleString(),
-        member: [member]
+        member: [uid],
+        uid: uid
     }
     console.log(data);
-   
+
     admin.firestore().collection('events').doc().set(data, { merge: true }).then(d => {
         return res.json({ success: true })
     })
@@ -143,38 +159,83 @@ exports.addEvent = (req, res) => {
             return res.json({ error: true, message: error })
         })
 }
-exports.events = (req, res) => {
-    const uid = req.uid
-    admin.auth().getUser(uid).then((userRecord) => {
-        admin.firestore().collection("events").get().then(async data => {
+exports.userEvents = (req, res) => {
+    const id = req.uid
+    admin.firestore().collection("events")
+        .where("member", "array-contains", id).get().then(async data => {
+
+
             let past = [];
             let future = [];
-            // console.log(data.docs);
-            
             await data.forEach(doc => {
-                new Date(Date.parse(doc.data().time))> new Date() ? future.push(doc.data()) : past.push(doc.data())
-
-                // console.log(doc.id, '=>', doc.data());
-                console.log(new Date(Date.parse(doc.data().time))>new Date())
-                console.log(new Date(Date.parse(doc.data().time)))
-                console.log(new Date());
-console.log(doc.data());
-
-
+                new Date(Date.parse(doc.data().time)) > new Date() ? future.push(doc.data()) : past.push(doc.data())
             })
-
-            // console.log(classA,classB,classC);
-
-
             return res.json({ past: past, future: future, success: true })
+            // allEvents.push(doc.data())
+            // console.log(doc.id, '=>', doc.data());
+
+            return res.json({ data: allEvents, success: true })
         }).catch((error) => {
             console.log(error);
             return res.json({ error: true, message: error })
         })
+}
+
+
+exports.getEventByUID = (req, res) => {
+    const uid = req.uid
+    const id = req.params.id
+    admin.firestore().collection("events")
+        .where("member", "array-contains", id).get().then(async data => {
+            let allEvents = [];
+
+
+            await data.forEach(doc => {
+                allEvents.push(doc.data())
+                // console.log(doc.id, '=>', doc.data());
+            })
+
+            return res.json({ data: allEvents, success: true })
+        }).catch((error) => {
+            console.log(error);
+            return res.json({ error: true, message: error })
+        })
+
+}
+exports.getProjectByUID = (req, res) => {
+    const uid = req.params.id
+
+    admin.firestore().collection('project').where('uid','==',uid).get().then(async d => {
+        let data=[]
+        await d.forEach(doc=>{
+             data.push(doc.data())
+         })
+             return res.json({ success: true, data: data })
+         
+
+    }).catch((error) => {
+        console.log(error);
+        return res.json({ error: true, message: error })
     })
 
-        .catch(err => {
-            console.log(err);
+}
+exports.getUserByUID = (req, res) => {
+    const uid = req.uid
+    const id = req.params.id
 
+    admin.firestore().collection('users').where('uid', '==', id).limit(1).get().then(data => {
+        if (data.empty) {
+            console.log('user not exist ');
+
+            return res.json({ error: true, message: 'User does not exist' })
+        } else {
+            return res.json({ data: data.docs[0].data(), success: true })
+        }
+    })
+
+        .catch((error) => {
+            console.log(error);
+            return res.json({ error: true, message: error })
         })
+
 }

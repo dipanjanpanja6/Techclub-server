@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 7000;
 var app = express()
 app.use(cross({origin:"https://techclub.web.app" ,credentials: true})); 
 // app.use(cross({ origin: "http://localhost:3000", credentials: true }));
+
 // app.use(cross())
 // app.use(express.json());
 // app.use(bodyParser())
@@ -36,19 +37,33 @@ app.post('/checkUser', checkUser, (req, res) => {
 })
 app.post('/logout', (req, res) => {
     res.clearCookie('token');
-    // res.redirect('/login');
     return res.json({ success: true })
 })
 //////////////////////////////////////////////////////
-const {userList,events,userProfile,projectSubmit,projectGet,addEvent} =require('./user')
+const { userList, userEvents, userProfile, projectSubmit, projectGet, addEvent, getUserByUID,getProjectByUID, getEventByUID } = require('./user')
 
-app.get('/whoiam',checkUser,userProfile)
-app.post('/projectsubmit',checkUser,projectSubmit)
-app.get('/projectget',checkUser,projectGet)
-app.get('/userlist',checkUser,userList)
-app.get('/events',checkUser,events)
-app.post('/addevent',checkUser,addEvent)
+app.get('/:id/user', getUserByUID)
+app.get('/:id/events', getEventByUID)
+app.get('/:id/projects', getProjectByUID)
 
+app.post('/projectsubmit', checkUser, projectSubmit)
+app.get('/projectget', checkUser, projectGet)
+app.post('/addevent', checkUser, addEvent)
+app.get('/userlist', checkUser, userList)
+app.get('/events', checkUser, userEvents)
+app.get('/whoiam', checkUser, userProfile)
+
+
+
+
+const { AllProject,AllEvent,getProjectByID,getEventByID,TopProject } = require('./extra')
+
+app.get('/:id/idprojects', getProjectByID)
+app.get('/:id/idevents', getEventByID)
+
+app.get('/alleventsget', AllEvent)
+app.get('/allprojectget', AllProject)
+app.get('/alltopprojectget', TopProject)
 
 
 // ..(..)..///////////////////testing///////////////////--........
@@ -89,4 +104,4 @@ server.listen(PORT);
 process.on('uncaughtException', function (err) {
     console.error(err);
     console.log("Node NOT Exiting...");
-  });
+});

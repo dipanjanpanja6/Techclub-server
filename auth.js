@@ -159,6 +159,8 @@ exports.activate = (req, res) => {
     clg: req.body.clg,
     isActivated: true,
     // uid:req.body.uid
+    class:"classC"
+
 
   }
   // console.log(data);
