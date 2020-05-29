@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 7000;
 
 var app = express()
-app.use(cross({origin:"https://gcecttechclub.web.app" ,credentials: true})); 
+app.use(cross({origin:"https://gcecttechclub.web.app" ,credentials: true}));   
 // app.use(cross({origin:"https://techclub.web.app" ,credentials: true})); 
 // app.use(cross({ origin: "http://localhost:3000", credentials: true }));
 
@@ -40,6 +40,9 @@ app.post('/logout', (req, res) => {
     res.clearCookie('token');
     return res.json({ success: true })
 })
+app.get('/', (req, res) => {
+    return res.json({message: "This is a server # Don't mesh it up"})
+})
 //////////////////////////////////////////////////////
 const { userList, userEvents, userProfile, projectSubmit, projectGet, addEvent, getUserByUID,getProjectByUID, getEventByUID } = require('./user')
 
@@ -57,7 +60,7 @@ app.get('/whoiam', checkUser, userProfile)
 
 
 
-const { AllProject,AllEvent,getProjectByID,getEventByID,TopProject } = require('./extra')
+const { AllProject,AllEvent,getProjectByID,getEventByID,TopProject,faq ,SubmitFaq} = require('./extra')
 
 app.get('/:id/idprojects', getProjectByID)
 app.get('/:id/idevents', getEventByID)
@@ -65,6 +68,10 @@ app.get('/:id/idevents', getEventByID)
 app.get('/alleventsget', AllEvent)
 app.get('/allprojectget', AllProject)
 app.get('/alltopprojectget', TopProject)
+
+
+app.get('/faq', faq)
+app.post('/submitfaq', SubmitFaq)
 
 
 // ..(..)..///////////////////testing///////////////////--........

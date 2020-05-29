@@ -25,7 +25,7 @@ exports.getProjectByID = (req, res) => {
 
 exports.TopProject = (req, res) => {
 
-    admin.firestore().collection('project').orderBy('star', 'asc').limit(3).get().then(async d => {
+    admin.firestore().collection('project').where('status','==',true).orderBy('star', 'asc').limit(3).get().then(async d => {
         // console.log(d);
         let project = [];
         await d.forEach(doc => {
@@ -35,12 +35,12 @@ exports.TopProject = (req, res) => {
         return res.json({ success: true, data: project })
     }).catch((error) => {
         console.log(error);
-        return res.json({ error: true, message: error })
+        return res.json({ error: true, message: error.code==14 ? "Server offline! Contact team" :error.message})
     })
 }
 exports.AllProject = (req, res) => {
 
-    admin.firestore().collection('project').orderBy('createdAt', 'asc').get().then(async d => {
+    admin.firestore().collection('project').where('status','==',true).orderBy('createdAt', 'asc').get().then(async d => {
         // console.log(d);
         let project = [];
         await d.forEach(doc => {
@@ -50,7 +50,7 @@ exports.AllProject = (req, res) => {
         })
         return res.json({ success: true, data: project })
     }).catch((error) => {
-        console.log(error);
+        console.log('allproject',error);
         return res.json({ error: true, message: error })
     })
 }
@@ -87,4 +87,40 @@ exports.getEventByID = (req, res) => {
             return res.json({ error: true, message: error })
         })
 
+}
+//////////////////////////////////////
+exports.faq=(req,res)=>{
+    admin.firestore().collection("faq").get().then(async data => {
+        let faqData = [];
+        await data.forEach(doc => {
+            faqData.push(doc.data())
+        })
+        return res.json({ data:faqData, success: true })
+    }).catch((error) => {
+        console.log("faq get error ",error);
+        return res.json({ error: true, message: error.code==14?"Server offline! Contact team":error.message })
+    })
+}
+exports.SubmitFaq=(req,res)=>{
+    if(req.body.key===4650){
+    admin.firestore().collection("faq").doc().set(
+        {
+            title:req.body.title,
+            desc:req.body.desc,
+            createdAt:new Date().toLocaleString(),
+            topic:req.body.topic,
+            id:randomId(10,'Aa0'),
+            tag:req.body.tag
+        }
+    ).then( () => {
+       
+        return res.json({success: true })
+    }).catch((error) => {
+        console.log("faq post error ",error);
+        return res.json({ error: true, message: error.code==14?"Server offline! Contact team":error.message })
+    })
+}else{
+    return res.send({ error: true, message: 'you are fool! get outta here 😠 ' })
+
+}
 }

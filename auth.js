@@ -236,7 +236,7 @@ exports.checkUser = (req, res, next) => {
       next()
     })
     .catch(error => {
-      console.log(error);
+      console.log(error.code);
       return res.json({ error: true, message: error.code })
     });
 }

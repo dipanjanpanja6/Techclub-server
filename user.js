@@ -40,7 +40,8 @@ exports.projectSubmit = (req, res) => {
         createdAt: new Date().toLocaleString(),
         star: 0,
         member:[uid],
-        tag:['Test']
+        tag:['Test'],
+        status:req.body.status
     }
     console.log(data);
 
@@ -183,7 +184,7 @@ exports.userEvents = (req, res) => {
 
 
 exports.getEventByUID = (req, res) => {
-    const uid = req.uid
+    // const uid = req.uid
     const id = req.params.id
     admin.firestore().collection("events")
         .where("member", "array-contains", id).get().then(async data => {
