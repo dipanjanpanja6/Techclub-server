@@ -25,7 +25,7 @@ exports.getProjectByID = (req, res) => {
 
 exports.TopProject = (req, res) => {
 
-    admin.firestore().collection('project').where('status','==',true).orderBy('star', 'asc').limit(3).get().then(async d => {
+    admin.firestore().collection('project').where('active','==',true).orderBy('star', 'desc').limit(3).get().then(async d => {
         // console.log(d);
         let project = [];
         await d.forEach(doc => {
@@ -40,7 +40,7 @@ exports.TopProject = (req, res) => {
 }
 exports.AllProject = (req, res) => {
 
-    admin.firestore().collection('project').where('status','==',true).orderBy('createdAt', 'asc').get().then(async d => {
+    admin.firestore().collection('project').where('active','==',true).orderBy('createdAt', 'asc').get().then(async d => {
         // console.log(d);
         let project = [];
         await d.forEach(doc => {

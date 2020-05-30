@@ -28,10 +28,12 @@ exports.userProfile = (req, res) => {
 exports.projectSubmit = (req, res) => {
     const uid = req.uid
     const email = req.email
+    // console.log(req);
+
     const data = {
         id: randomId(10, 'Aa0'),
         uid: uid,
-        email:email,
+        email: email,
         title: req.body.title,
         gitLink: req.body.gitLink,
         desc: req.body.desc,
@@ -39,46 +41,39 @@ exports.projectSubmit = (req, res) => {
         liveLink: req.body.liveLink,
         createdAt: new Date().toLocaleString(),
         star: 0,
-        member:[uid],
-        tag:['Test'],
-        status:req.body.status
+        member: [uid],
+        tag: req.body.tag,
+        status: req.body.status,
+        active: req.body.active
     }
-    console.log(data);
+    // console.log(data);
+    console.log(data.tag);
+    // console.log(req.body.tag);
 
-    // var object = {}
-    // object['projectKey ' + randomId(5, 'Aa0')] = data
+
+    var object = {}
+    object['projectKey ' + randomId(5, 'Aa0')] = data
 
     admin.firestore().collection('project').doc().set(data).then(d => {
 
         return res.json({ success: true })
+    }).catch((error) => {
+        console.log(error);
+        return res.json({ error: true, message: error })
     })
-
-        .catch((error) => {
-            console.log(error);
-            return res.json({ error: true, message: error })
-        })
-
-
-        .catch(err => {
-            console.log(err);
-            return res.json({ error: true, message: error })
-
-        })
 }
-
-
 exports.projectGet = (req, res) => {
     const uid = req.uid
 
     admin.firestore().collection("project")
         .where("uid", "==", uid).get().then(async d => {
-            let data=[]
-           await d.forEach(doc=>{
+            let data = []
+            await d.forEach(doc => {
                 data.push(doc.data())
             })
-          
-                return res.json({ success: true, data: data })
-            
+
+            return res.json({ success: true, data: data })
+
         })
         .catch((error) => {
             console.log(error);
@@ -89,13 +84,10 @@ exports.projectGet = (req, res) => {
             return res.json({ error: true, message: error })
         })
 }
-
-
-
 exports.userList = (req, res) => {
     const uid = req.uid
     admin.auth().getUser(uid).then((userRecord) => {
-        admin.firestore().collection("users").orderBy("class", "asc").get().then(async data => {
+        admin.firestore().collection("users").orderBy("name", "asc").get().then(async data => {
             let classA = [];
             let classB = [];
             let classC = [];
@@ -181,8 +173,6 @@ exports.userEvents = (req, res) => {
             return res.json({ error: true, message: error })
         })
 }
-
-
 exports.getEventByUID = (req, res) => {
     // const uid = req.uid
     const id = req.params.id
@@ -206,17 +196,17 @@ exports.getEventByUID = (req, res) => {
 exports.getProjectByUID = (req, res) => {
     const uid = req.params.id
 
-    admin.firestore().collection('project').where('uid','==',uid).get().then(async d => {
-        let data=[]
-        await d.forEach(doc=>{
-             data.push(doc.data())
-         })
-             return res.json({ success: true, data: data })
-         
+    admin.firestore().collection('project').where('uid', '==', uid).get().then(async d => {
+        let data = []
+        await d.forEach(doc => {
+            data.push(doc.data())
+        })
+        return res.json({ success: true, data: data })
+
 
     }).catch((error) => {
         console.log(error);
-        return res.json({ error: true, message: error })
+        return res.json({ error: true, message: error.code==14 ?"Server offline! Contact team" :error.message })
     })
 
 }
