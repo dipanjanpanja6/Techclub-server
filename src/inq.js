@@ -1,4 +1,4 @@
-const { admin } = require("./config/admin");
+const { admin } = require("../config/admin");
 
 exports.feedback = (req, res) => {
   const email = req.body.email;

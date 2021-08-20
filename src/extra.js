@@ -1,4 +1,4 @@
-const { admin } = require("./config/admin");
+const { admin } = require("../config/admin");
 const firebase = require("firebase");
 const randomId = require("random-id");
 

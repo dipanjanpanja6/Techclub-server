@@ -1,5 +1,5 @@
-const io = require("./index");
-const { admin } = require("./config/admin");
+const io = require("../index");
+const { admin } = require("../config/admin");
 const random_id = require("random-id");
 var dateFormat = require("dateformat");
 

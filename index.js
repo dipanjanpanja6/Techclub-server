@@ -7,12 +7,27 @@ const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 7000;
 
 var app = express();
-app.use(cross({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cross({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (whitelist.indexOf(origin) === -1) {
+        var msg =
+          "The CORS policy for this site does not " +
+          "allow access from the specified Origin => " +
+          origin;
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser("o vai maro mujhe maro"));
 
-const socketManneger = require("./soutBox");
+const socketManneger = require("./src/soutBox");
 const {
   login,
   checkUser,
@@ -21,29 +36,8 @@ const {
   signUp,
   customLogin,
   activate,
-} = require("./auth");
-const { feedback } = require("./inq");
-
-// ||||||||||||||||||||inquiry|||||||||||||||||||||
-app.post("/feedback", feedback);
-
-// ||||||||||||||||||||auth||||||||||||||||||||||||
-app.post("/signUp", signUp, createCookies);
-app.post("/login", login, createCookies);
-app.post("/activate", checkUser, activate);
-app.post("/customLogin", checkCustomUser, customLogin, createCookies);
-
-app.post("/checkUser", checkUser, (req, res) => {
-  return res.json({ success: true });
-});
-app.post("/logout", (req, res) => {
-  res.clearCookie("token");
-  return res.json({ success: true });
-});
-app.get("/", (req, res) => {
-  return res.json({ message: "This is a server # Don't mesh it up" });
-});
-//////////////////////////////////////////////////////
+} = require("./src/auth");
+const { feedback } = require("./src/inq");
 const {
   joinProject,
   userList,
@@ -55,7 +49,36 @@ const {
   getUserByUID,
   getProjectByUID,
   getEventByUID,
-} = require("./user");
+} = require("./src/user");
+const {
+  AllProject,
+  AllEvent,
+  getProjectByID,
+  getEventByID,
+  TopProject,
+  faq,
+  SubmitFaq,
+} = require("./src/extra");
+const whitelist = require("./config/whitelist");
+
+// ||||||||||||||||||||inquiry|||||||||||||||||||||
+app.post("/feedback", feedback);
+
+// ||||||||||||||||||||auth||||||||||||||||||||||||
+app.post("/signUp", signUp, createCookies);
+app.post("/login", login, createCookies);
+app.post("/activate", checkUser, activate);
+app.post("/customLogin", checkCustomUser, customLogin, createCookies);
+
+app.post("/checkUser", checkUser, (req, res) => res.json({ success: true }));
+app.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  return res.json({ success: true });
+});
+app.get("/", (req, res) =>
+  res.json({ message: "This is a server # Don't mesh it up" })
+);
+//////////////////////////////////////////////////////
 
 app.get("/:id/user", getUserByUID);
 app.get("/:id/events", getEventByUID);
@@ -69,16 +92,6 @@ app.post("/addevent", checkUser, addEvent);
 app.get("/userlist", checkUser, userList);
 app.get("/events", checkUser, userEvents);
 app.get("/whoiam", checkUser, userProfile);
-
-const {
-  AllProject,
-  AllEvent,
-  getProjectByID,
-  getEventByID,
-  TopProject,
-  faq,
-  SubmitFaq,
-} = require("./extra");
 
 app.get("/:id/idprojects", getProjectByID);
 app.get("/:id/idevents", getEventByID);

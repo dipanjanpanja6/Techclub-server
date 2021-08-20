@@ -1,6 +1,5 @@
-const { admin } = require("./config/admin");
+const { admin } = require("../config/admin");
 const firebase = require("firebase");
-const randomId = require("random-id");
 const cookieConfig = {
   httpOnly: true, // to disable accessing cookie via client side js
   // secure: true, // to force https (if you use it)
