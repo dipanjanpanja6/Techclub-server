@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cross = require("cors");
 const http = require("http");
