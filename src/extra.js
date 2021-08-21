@@ -1,9 +1,9 @@
-const { admin } = require("../config/admin");
-const firebase = require("firebase");
-const randomId = require("random-id");
+const { admin } = require("../config/admin")
+const firebase = require("firebase")
+const randomId = require("random-id")
 
 exports.getProjectByID = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
   admin
     .firestore()
@@ -11,20 +11,20 @@ exports.getProjectByID = (req, res) => {
     .where("id", "==", id)
     .limit(1)
     .get()
-    .then((d) => {
+    .then(d => {
       if (d.empty) {
-        return res.json({ error: true, message: "No data exist !" });
+        return res.json({ error: true, message: "No data exist !" })
       } else {
-        d.forEach((doc) => {
-          return res.json({ success: true, data: doc.data() });
-        });
+        d.forEach(doc => {
+          return res.json({ success: true, data: doc.data() })
+        })
       }
     })
-    .catch((error) => {
-      console.error(error);
-      return res.json({ error: true, message: error });
-    });
-};
+    .catch(error => {
+      console.error(error)
+      return res.json({ error: true, message: error })
+    })
+}
 
 exports.TopProject = (req, res) => {
   admin
@@ -34,22 +34,21 @@ exports.TopProject = (req, res) => {
     .orderBy("star", "desc")
     .limit(3)
     .get()
-    .then(async (d) => {
-      let project = [];
-      await d.forEach((doc) => {
-        project.push(doc.data());
-      });
-      return res.json({ success: true, data: project });
+    .then(async d => {
+      let project = []
+      await d.forEach(doc => {
+        project.push(doc.data())
+      })
+      return res.json({ success: true, data: project })
     })
-    .catch((error) => {
-      console.error(error);
+    .catch(error => {
+      console.error(error)
       return res.json({
         error: true,
-        message:
-          error.code == 14 ? "Server offline! Contact team" : error.message,
-      });
-    });
-};
+        message: error.code == 14 ? "Server offline! Contact team" : error.message,
+      })
+    })
+}
 exports.AllProject = (req, res) => {
   admin
     .firestore()
@@ -57,82 +56,79 @@ exports.AllProject = (req, res) => {
     .where("active", "==", true)
     .orderBy("createdAt", "asc")
     .get()
-    .then(async (d) => {
-      let project = [];
-      await d.forEach((doc) => {
-        project.push(doc.data());
-      });
-      return res.json({ success: true, data: project });
+    .then(async d => {
+      let project = []
+      await d.forEach(doc => {
+        project.push(doc.data())
+      })
+      return res.json({ success: true, data: project })
     })
-    .catch((error) => {
-      console.error("allproject", error);
-      return res.json({ error: true, message: error });
-    });
-};
+    .catch(error => {
+      console.error("allproject", error)
+      return res.json({ error: true, message: error })
+    })
+}
 //////////////////////////////////
 exports.AllEvent = (req, res) => {
   admin
     .firestore()
     .collection("events")
     .get()
-    .then(async (data) => {
-      let past = [];
-      let future = [];
-      await data.forEach((doc) => {
-        new Date(Date.parse(doc.data().time)) > new Date()
-          ? future.push(doc.data())
-          : past.push(doc.data());
-      });
-      return res.json({ past: past, future: future, success: true });
+    .then(async data => {
+      let past = []
+      let future = []
+      await data.forEach(doc => {
+        new Date(Date.parse(doc.data().time)) > new Date() ? future.push(doc.data()) : past.push(doc.data())
+      })
+      return res.json({ past: past, future: future, success: true })
     })
-    .catch((error) => {
-      console.error(error);
-      return res.json({ error: true, message: error });
-    });
-};
+    .catch(error => {
+      console.error(error)
+      return res.json({ error: true, message: error })
+    })
+}
 exports.getEventByID = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
   admin
     .firestore()
     .collection("events")
     .where("member", "array-contains", id)
     .get()
-    .then(async (data) => {
-      let allEvents = [];
+    .then(async data => {
+      let allEvents = []
 
-      await data.forEach((doc) => {
-        allEvents.push(doc.data());
-      });
+      await data.forEach(doc => {
+        allEvents.push(doc.data())
+      })
 
-      return res.json({ data: allEvents, success: true });
+      return res.json({ data: allEvents, success: true })
     })
-    .catch((error) => {
-      console.error(error);
-      return res.json({ error: true, message: error });
-    });
-};
+    .catch(error => {
+      console.error(error)
+      return res.json({ error: true, message: error })
+    })
+}
 //////////////////////////////////////
 exports.faq = (req, res) => {
   admin
     .firestore()
     .collection("faq")
     .get()
-    .then(async (data) => {
-      let faqData = [];
-      await data.forEach((doc) => {
-        faqData.push(doc.data());
-      });
-      return res.json({ data: faqData, success: true });
+    .then(async data => {
+      let faqData = []
+      await data.forEach(doc => {
+        faqData.push(doc.data())
+      })
+      return res.json({ data: faqData, success: true })
     })
-    .catch((error) => {
-      console.error("faq get error ", error);
+    .catch(error => {
+      console.error("faq get error ", error)
       return res.json({
         error: true,
-        message:
-          error.code == 14 ? "Server offline! Contact team" : error.message,
-      });
-    });
-};
+        message: error.code == 14 ? "Server offline! Contact team" : error.message,
+      })
+    })
+}
 exports.SubmitFaq = (req, res) => {
   if (req.body.key === 4650) {
     admin
@@ -148,20 +144,19 @@ exports.SubmitFaq = (req, res) => {
         tag: req.body.tag,
       })
       .then(() => {
-        return res.json({ success: true });
+        return res.json({ success: true })
       })
-      .catch((error) => {
-        console.error("faq post error ", error);
+      .catch(error => {
+        console.error("faq post error ", error)
         return res.json({
           error: true,
-          message:
-            error.code == 14 ? "Server offline! Contact team" : error.message,
-        });
-      });
+          message: error.code == 14 ? "Server offline! Contact team" : error.message,
+        })
+      })
   } else {
     return res.send({
       error: true,
       message: "you are fool! get outta here 😠 ",
-    });
+    })
   }
-};
+}
